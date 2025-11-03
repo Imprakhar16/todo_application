@@ -1,5 +1,11 @@
+import LoginUser from "./pages/auth/loginUser";
+
 function App() {
-  return <></>;
+  return (
+    <>
+      <LoginUser />
+    </>
+  );
 }
 
 export default App;
