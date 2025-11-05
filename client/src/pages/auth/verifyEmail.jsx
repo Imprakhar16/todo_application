@@ -1,33 +1,34 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginThunk } from "../../features/auth/authThunk";
+import { verifyUserThunk } from "../../features/auth/authThunk";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../../components/toaster";
 
-export default function LoginUser() {
+export default function VerifyEmail() {
+  const [otp, setOtp] = useState("");
   const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
-  const [form, setForm] = useState({
-    email: "",
-    password: "",
-  });
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const { loading } = useSelector((state) => state.auth);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(loginThunk(form))
-      .unwrap()
-      .then(() => navigate("/create-todo"));
+    const otpToken = localStorage.getItem("verfyToken");
+    try {
+      await dispatch(verifyUserThunk({ otp, otpToken }))
+        .unwrap()
+        .then(() => navigate("/login"));
+      localStorage.removeItem("verfyToken");
+    } catch (error) {
+      showToast({
+        message: error.message || "Failed to verify",
+        status: "error",
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center bg-linear-to-br from-purple-50 to-indigo-100 justify-center p-5">
+    <div className="min-h-screen flex items-center justify-center p-5">
       <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -42,22 +43,29 @@ export default function LoginUser() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
               />
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            Welcome Back
+            Verify Email
           </h2>
-          <p className="text-gray-500 text-sm">Please login to your account</p>
+          <p className="text-gray-500 text-sm">
+            Enter the OTP sent to your email
+          </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email
+              OTP Code
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -71,56 +79,23 @@ export default function LoginUser() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    d="M12 8v4l3 3"
                   />
                 </svg>
               </div>
               <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-600 transition-colors duration-300"
+                type="text"
+                name="otp"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                placeholder="Enter 6-digit OTP"
+                maxLength={6}
+                className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-600 transition-colors duration-300 text-center tracking-widest text-lg"
                 required
               />
             </div>
           </div>
 
-          {/* Password Input */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-600 transition-colors duration-300"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -152,7 +127,7 @@ export default function LoginUser() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Logging in...
+                Verifying...
               </>
             ) : (
               <>
@@ -166,23 +141,22 @@ export default function LoginUser() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                    d="M5 13l4 4L19 7"
                   />
                 </svg>
-                Login
+                Verify
               </>
             )}
           </button>
         </form>
 
         <div className="text-center mt-6">
-          Don't have an account?{" "}
+          Didn’t receive the OTP?{" "}
           <span
-            style={{ cursor: "pointer" }}
+            className="text-purple-600 hover:text-purple-800 font-medium cursor-pointer"
             onClick={() => navigate("/")}
-            className="text-purple-600 hover:text-purple-800 text-md font-medium transition-colors duration-300"
           >
-            Register here
+            Register again
           </span>
         </div>
       </div>

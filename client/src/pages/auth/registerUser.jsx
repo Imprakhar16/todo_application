@@ -1,29 +1,31 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginThunk } from "../../features/auth/authThunk";
+import { registerThunk } from "../../features/auth/authThunk";
 import { useNavigate } from "react-router-dom";
 
-export default function LoginUser() {
-  const dispatch = useDispatch();
-  const { loading } = useSelector((state) => state.auth);
-  const [form, setForm] = useState({
+export default function RegisterUser() {
+  const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
   });
+
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(loginThunk(form))
+    dispatch(registerThunk(formData))
       .unwrap()
-      .then(() => navigate("/create-todo"));
+      .then(() => navigate("/verify-email"));
   };
 
   return (
@@ -47,13 +49,48 @@ export default function LoginUser() {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            Welcome Back
+            Create Account
           </h2>
-          <p className="text-gray-500 text-sm">Please login to your account</p>
+          <p className="text-gray-500 text-sm">
+            Join us by creating a new account
+          </p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Name Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+              Name
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg
+                  className="w-5 h-5 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5.121 17.804A13.937 13.937 0 0112 15c2.28 0 4.42.51 6.293 1.411M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your name"
+                className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-600 transition-colors duration-300"
+                required
+              />
+            </div>
+          </div>
+
           {/* Email Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -78,7 +115,7 @@ export default function LoginUser() {
               <input
                 type="email"
                 name="email"
-                value={form.email}
+                value={formData.email}
                 onChange={handleChange}
                 placeholder="Enter your email"
                 className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-600 transition-colors duration-300"
@@ -111,7 +148,7 @@ export default function LoginUser() {
               <input
                 type="password"
                 name="password"
-                value={form.password}
+                value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter your password"
                 className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-purple-600 transition-colors duration-300"
@@ -152,7 +189,7 @@ export default function LoginUser() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Logging in...
+                Registering...
               </>
             ) : (
               <>
@@ -166,23 +203,24 @@ export default function LoginUser() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                    d="M12 4v16m8-8H4"
                   />
                 </svg>
-                Login
+                Register
               </>
             )}
           </button>
         </form>
 
+        {/* Footer */}
         <div className="text-center mt-6">
-          Don't have an account?{" "}
+          Already have an account?{" "}
           <span
             style={{ cursor: "pointer" }}
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="text-purple-600 hover:text-purple-800 text-md font-medium transition-colors duration-300"
           >
-            Register here
+            Login here
           </span>
         </div>
       </div>
